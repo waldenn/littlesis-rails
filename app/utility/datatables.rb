@@ -82,12 +82,15 @@ module Datatables
       end.join(', ')
     end
 
-    # Used only for the NYS Disclosure dataset
-    def transaction_codes
-      if @params['transaction_codes']
-        @params['transaction_codes'].map(&:to_sym)
-      else
-        []
+    def nys_disclosure_filter
+      {}.tap do |h|
+        if @params['transaction_codes'].present?
+          h.store :transaction_code, NYSCampaignFinance::TRANSACTION_CODE_OPTIONS
+                                       .values_at(*@params['transaction_codes'].map(&:to_sym))
+                                       .reduce(:concat)
+        end
+
+        h.store :filer_id, @params['filer_id'] if @params['filer_id']
       end
     end
 

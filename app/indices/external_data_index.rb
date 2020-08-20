@@ -8,7 +8,9 @@ ThinkingSphinx::Index.define(
   # Is this external relationship matched?
   has 'IF(external_relationships.relationship_id is NULL, FALSE, TRUE)', as: :matched, type: :boolean
 
-  # Attributes from disclosure: transaction_code, date, amount
+  # Attributes from disclosure: filer_id, transaction_code, date, amount
+
+  has "JSON_VALUE(external_data.data, '$.FILER_ID')", as: :filer_id, type: :string
 
   has "CAST(JSON_VALUE(external_data.data, '$.TRANSACTION_CODE') AS CHAR(1))", as: :transaction_code, type: :string
 
