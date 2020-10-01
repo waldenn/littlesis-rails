@@ -14,7 +14,6 @@ class ExternalRelationship
       def potential_matches_entity1(search_term = nil)
         name = search_term.presence || external_data.wrapper.name
 
-
         if external_data.wrapper.donor_primary_ext == 'Org'
           EntityMatcher.find_matches_for_org(name)
         else
@@ -36,7 +35,11 @@ class ExternalRelationship
       # end
 
       def find_existing
-        relationships = Relationship.where(attributes.slice('category_id', 'entity1_id', 'entity2_id')).to_a
+        relationships = Relationship
+                          .where(category_id: attributes.fetch('category_id'))
+                          .where(entity1_id: attributes.fetch('entity1_id'))
+                          .where(entity2_id: attributes.fetch('entity2_id'))
+                          .to_a
 
         return nil if relationships.empty?
 
