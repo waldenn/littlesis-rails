@@ -136,9 +136,19 @@ class ExternalData < ApplicationRecord
     end
   end
 
-  def self.stats(dataset)
-    verify_dataset!(dataset)
+  # Returns stats for all datasets by default. Provide a dataset to get
+  # a the stats object for a single dataset.
+  # nil | Symbol | String ---> Stats | [Stats]
+  def self.stats(dataset = nil)
+    if dataset
+      verify_dataset! dataset
+      dataset_stats dataset
+    else
+      Datasets.names.map(&method(:dataset_stats))
+    end
+  end
 
+  def self.dataset_stats(dataset)
     Stats.new(name: dataset,
               description: Datasets.descriptions.fetch(dataset),
               total: public_send(dataset).count,

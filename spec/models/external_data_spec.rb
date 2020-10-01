@@ -9,6 +9,20 @@ describe ExternalData, type: :model do
     expect(ExternalData.dataset?('music videos')).to be false
   end
 
+  describe 'stats' do
+    before { create(:external_data_nycc_borelli) }
+
+    specify 'all dataset stats' do
+      expect(ExternalData.stats.length).to eq ExternalData::Datasets.names.length
+    end
+
+    specify 'stats for a single dataset ' do
+      stats = ExternalData.stats :nycc
+      expect(stats).to be_a ExternalData::Stats
+      expect(stats.total).to eq 1
+    end
+  end
+
   describe 'datatables_query' do
     let(:nycc_members) do
       [create(:external_data_nycc_borelli), create(:external_data_nycc_constantinides)]

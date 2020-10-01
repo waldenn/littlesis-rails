@@ -1,12 +1,10 @@
 <% content_for :page_title, "External Datasets" %>
 
 <div id="datasets-overview">
-  <% ExternalData::Datasets.names.each do |dataset| %>
-    <% stats = ExternalData.stats(dataset) %>
+  <% ExternalData.stats.each do |stats| %>
     <div class="mt-2">
       <h3>
         <%= link_to stats.name.titleize, stats.url %>
-
         <small class="text-muted"><%= stats.description %></small>
         <span> | </span>
         <small class="text-primary"><%= stats.percent_matched %>% matched</small>
