@@ -346,40 +346,38 @@ describe Relationship, type: :model do
   end
 
   describe 'Update Start/End dates' do
-    before(:all) do
-      DatabaseCleaner.start
-      @loeb = create(:loeb)
-      @nrsc = create(:nrsc)
-      @loeb_donation = create(:loeb_donation, entity: @loeb, related: @nrsc, filings: 1, amount: 10_000) # relationship model
+    let!(:loeb) { create(:loeb) }
+    let!(:nrsc) { create(:nrsc) }
+    let!(:donation_relationship) do
+      # start_date == "2010-00-00", end_date == "2011-00-00"
+      create(:loeb_donation, entity: loeb, related: nrsc, filings: 1, amount: 10_000)
     end
 
-    after(:all) { DatabaseCleaner.clean }
-
-    it 'updates start date' do
-      @loeb_donation.update_start_date_if_earlier Date.new(1999)
-      expect(@loeb_donation.start_date).to eql('1999-01-01')
+    it 'updates start date if nil' do
+      donation_relationship.update_start_date_if_earlier Date.new(1999)
+      expect(donation_relationship.start_date).to eq '1999-01-01'
     end
 
-    it 'updates end date' do
-      @loeb_donation.update_end_date_if_later Date.new(2012)
-      expect(@loeb_donation.end_date).to eql('2012-01-01')
+    it 'updates end date if later' do
+      donation_relationship.update_end_date_if_later Date.new(2012)
+      expect(donation_relationship.end_date).to eq '2012-01-01'
     end
 
     it 'does not change if not earlier' do
-      @loeb_donation.update_start_date_if_earlier Date.new(2010)
-      expect(@loeb_donation.start_date).to eql('1999-01-01')
+      donation_relationship.update_start_date_if_earlier Date.new(2010, 1, 2)
+      expect(donation_relationship.start_date).to eq '2010-00-00'
     end
 
-    it 'does not change if not later' do
-      @loeb_donation.update_end_date_if_later Date.new(2010)
-      expect(@loeb_donation.end_date).to eql('2012-01-01')
+    it 'does not update end date' do
+      donation_relationship.update_end_date_if_later Date.new(2010, 1, 2)
+      expect(donation_relationship.end_date).to eq '2011-00-00'
     end
 
     it 'can handle nil input' do
-      @loeb_donation.update_start_date_if_earlier nil
-      expect(@loeb_donation.start_date).to eql('1999-01-01')
-      @loeb_donation.update_end_date_if_later nil
-      expect(@loeb_donation.end_date).to eql('2012-01-01')
+      donation_relationship.update_start_date_if_earlier nil
+      expect(donation_relationship.start_date).to eql '2010-00-00'
+      donation_relationship.update_end_date_if_later nil
+      expect(donation_relationship.end_date).to eql '2011-00-00'
     end
   end
 
